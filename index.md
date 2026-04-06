@@ -19,6 +19,9 @@
 - [12. Experimental Methodology and Timing Evaluation](#12-experimental-methodology-and-timing-evaluation)
 - [13. Hailo versus CPU, and ZES versus Raspberry Pi 5](#13-hailo-versus-cpu-and-zes-versus-raspberry-pi-5)
 - [14. Conclusion](#14-conclusion)
+- [15. Future Work](#15-future-work)
+- [16. References](#16-references)
+- [Appendix A: Figures](#appendix-a-figures)
 
 ## **Abstract**
 
@@ -48,7 +51,7 @@ The central problem addressed by this project was the absence of a unified integ
 
 The value proposition of the project is therefore twofold. First, it reduces technical risk by making subsystem communication visible and testable early. Second, it produces a payload pipeline that can be validated against the actual mission timing requirement. A system that is accurate but too slow is not mission-ready, and a system that is fast but cannot be integrated reliably is also not mission-ready. The project therefore had to solve both integration correctness and performance.
 
-The project is also valuable because it is reusable. SpaceWire was chosen because it is a real spacecraft protocol with deterministic high-speed links, packetised communication, and full-duplex operation, and because it maps cleanly onto the Zynq UltraScale+ architecture. That decision was technically sound in the interim phase and remains sound in the final system. The later integration work with camera drivers, Hailo, and Ku-band control shows that the communication backbone is not an abstract design exercise, but a platform that can support actual payload work.
+The project is also valuable because it is reusable. SpaceWire was chosen because it is a real spacecraft protocol with deterministic high-speed links, packetised communication, and full-duplex operation, and because it maps cleanly onto the Zynq UltraScale+ architecture. That decision was technically sound in the interim phase and remains sound in the final system. The later integration work with camera drivers, Hailo, and Ku-band control shows that the communication backbone is not an abstract design exercise, but a platform that can support actual payload work. 
 
 ## **3\. Scope of My Work**
 
@@ -212,7 +215,7 @@ These results support the use of the Hailo accelerator. CPU-only processing exce
 
 The Raspberry Pi 5 comparison must be interpreted carefully. The Hailo benchmark on Raspberry Pi 5 shows faster raw timings for the tiling and inference stages, with approximately 0.31 seconds for tiling and 0.78 seconds / 0.65 seconds for inference in single image processing and batch processing respectively. That does not automatically make Raspberry Pi 5 the better final payload computer, because the report is not evaluating raw speed alone. The evaluation is based on whether the board can support the full mission architecture. The ZSOM-F01 board remains the correct final platform because it is the mission-representative payload computer and supports the FPGA/SpaceWire integration path required by the overall Galassia-5 design.
 
-The timing results therefore validate both the pipeline design and the hardware selection from a mission perspective. ZSOM-F01 with Hailo satisfies the mission timing requirement with a substantial performance margin, while also matching the intended payload architecture. The benchmark evidence also shows where any further optimization effort should go: not into the Hailo inference engine itself, but into the image pre-processing stages if future improvement is needed.
+The purpose of these tests was to validate both functional correctness of subsystem integration and compliance with the mission timing constraint.
 
 ![][image18]
 
@@ -238,6 +241,26 @@ This project successfully developed a software-hardware integration framework fo
 The strongest technical result is the pipeline timing. The measured image-processing time is comfortably below the 20-second mission requirement. The strongest design result is the hardware choice: Hailo is required because CPU-only processing is too slow and too memory constrained, and ZSOM-F01 is the correct platform because it is the real mission payload computer. The strongest integration result is the ability to access the camera through Ethernet and Python, while still preserving the SpaceWire-based architecture needed for the original mission concept.
 
 The final report therefore presented as evidence that Galassia-5 has a viable, tested, and mission-relevant payload integration framework. It does not merely describe components. It explains how those components were made to work together, why the key decisions were made, and how the final system satisfies the project’s technical goals. 
+
+## **15\. Future Work**
+
+Although the system meets the current project objectives, several areas can be improved. First, the Ku-band radio should be integrated and tested physically once the hardware becomes available to validate end-to-end communication. Second, the image tiling stage can be optimised, as it is currently the main contributor to runtime. Third, the system can be further enhanced by improving robustness for real mission conditions, including error handling and long-duration operation.
+
+Future work may also include migrating from the Ubuntu-based development environment to a lighter deployment system for space operation, as well as further optimisation of the AI pipeline for power and thermal efficiency.
+
+## **16\. References**
+
+[1] ECSS, “SpaceWire – Links, nodes, routers and networks,” ECSS-E-ST-50-12C, 2008.
+
+[2] Xilinx, “Zynq UltraScale+ MPSoC Overview,” AMD Xilinx Documentation, 2023.
+
+[3] Hailo, “Hailo-8 AI Processor Datasheet,” Hailo Technologies, 2023.
+
+[4] Ultralytics, “YOLOv8 Documentation,” 2024. Available: https://docs.ultralytics.com
+
+[5] NASA, “Remote Sensing and Ground Sampling Distance (GSD),” NASA Earth Observatory.
+
+[6] Wertz, J. R., Everett, D. F., & Puschell, J. J., *Space Mission Engineering: The New SMAD*, Microcosm Press, 2011.
 
 **Appendix**  
 **![][image21]**  
