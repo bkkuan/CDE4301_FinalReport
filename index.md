@@ -30,18 +30,17 @@ This project developed and validated a software-hardware integration framework f
 The project began with SpaceWire simulation in Vivado to establish a communication backbone between a camera node and a payload computer node. In the final phase, the work expanded into actual subsystem integration, including support for both the SpaceWire camera path and the Ethernet-based Atlas Lucid / Skunkworks camera path, Hailo-8L enablement, and a more usable Ubuntu-based development filesystem on the ZSOM-F01 board. The final system demonstrates a flexible payload integration framework that can support camera data, AI processing, and Ku-band communication through a common software-hardware architecture.
 
 ![][image2]
-
 Figure 1: Mission overview / payload integration with camera, ku band radio and the Hailo AI accelerator with the payload computer
 
 ## **1\. Introduction**
 
 Galassia-5 is a satellite project that integrates multiple independently developed subsystems into a single payload architecture. For a spacecraft payload, the key question is not whether each subsystem can function in isolation, but whether the camera, onboard processing, and communication systems can operate together reliably under timing and hardware constraints on the actual mission platform. The purpose of this project was to address that integration challenge.
 
-The project initially focused on establishing a communication backbone. The interim stage developed the SpaceWire architecture, justified its selection, and validated it through a dual-node simulation representing the camera node and the payload computer node. This was necessary because one of the candidate payload cameras (Siemera) communicates exclusively through SpaceWire, requiring the payload computer to support this interface before any meaningful integration could take place.
+The project initially focused on establishing a communication backbone. The interim stage developed the SpaceWire architecture, justified its selection, and validated it through a dual-node simulation representing the camera node and the payload computer node. This was necessary because one of the candidate payload cameras (Simera) communicates exclusively through SpaceWire, requiring the payload computer to support this interface before any meaningful integration could take place.
 
 In the final phase, the scope expanded into a full software–hardware integration framework. This included board bring-up, operating system configuration, camera integration, Ethernet communication, SpaceWire testing, Hailo-based inference, and pipeline timing validation. A major part of the work involved making the ZSOM-F01 payload computer usable as a development platform. The original PetaLinux environment imposed limitations on package management and software installation, while the migration to an Ubuntu-based filesystem enabled a more practical development workflow with access to Python libraries, drivers, and SDK support.
 
-A key complexity in this project is that the final flight camera was not fixed early in the development process. As a result, the integration work had to support two different camera interfaces. The Siemera camera uses SpaceWire and represents the space-grade communication path, while the Skunkworks camera uses Ethernet and requires SDK-based control through Python. Supporting both interfaces ensures that the payload computer can handle different camera configurations and remain adaptable to final mission decisions.
+A key complexity in this project is that the final flight camera was not fixed early in the development process. As a result, the integration work had to support two different camera interfaces. The Simera camera uses SpaceWire and represents the space-grade communication path, while the Skunkworks camera uses Ethernet and requires SDK-based control through Python. Supporting both interfaces ensures that the payload computer can handle different camera configurations and remain adaptable to final mission decisions.
 
 In parallel, the Hailo AI accelerator was integrated and stabilised on the target hardware, as it is essential for meeting the onboard processing time requirements. The final outcome is therefore not a single-interface solution, but a flexible integration framework that supports multiple camera paths, onboard AI processing, and communication subsystems within a unified architecture.
 
@@ -78,7 +77,6 @@ The project also had to account for interface diversity. The camera path is not 
 The hardware constraints were equally important. The final flight camera was not fixed early enough to simplify the integration strategy. The original camera path was SpaceWire-only, but the later work with Skunkworks required Ethernet and SDK-based communication. The board environment also had boot and driver limitations, which made a robust development filesystem necessary. These constraints did not weaken the project; they defined the engineering space in which the integration had to succeed.
 
 ![][image3]
-
 Figure 2: Requirements and constraints of the mission. 
 
 ## **6\. System Architecture**
@@ -92,28 +90,31 @@ The image-processing pipeline sits above that backbone. It receives an image fro
 This architecture is modular, and that is one of its strongest features. The camera path can change, the AI accelerator can be substituted or updated, and the radio integration can be expanded without rewriting the whole system. That is important for a payload integration framework because mission hardware is often not fully fixed at the beginning of the project.
 
 ![][image4]
-
 Figure 3: Overall Block Diagram of the payload Computer ZSOM-F01
 
 ## **7\. Camera Integration**
 
-The camera work in this project is notable because it covers two different communication paths. The original interim focus was the Siemera camera, which only supports SpaceWire. That made SpaceWire the obvious first protocol to validate, and the interim report showed how the dual-node simulation could verify bidirectional communication between a camera node and a payload computer node.
+The camera work in this project is notable because it covers two different communication paths. The original interim focus was the Simera camera, which only supports SpaceWire. That made SpaceWire the obvious first protocol to validate, and the interim report showed how the dual-node simulation could verify bidirectional communication between a camera node and a payload computer node.
 
 The final semester broadened this work to include the Atlas Lucid / Skunkworks camera, which uses Ethernet. That shifted the integration problem from protocol simulation to practical networking and software control. The board has two Ethernet ports, but only `eth0` could be used reliably for the camera connection. This meant that the camera and the ZSOM-F01 board had to be placed on the same network using DHCP before communication could succeed. In other words, the camera problem was not solved by plugging in a cable; it required proper interface selection, network alignment, and driver/software readiness.
 
 To make the camera controllable from the board, the Lucid Atlas SDK was installed and configured. Python was then used as the control layer, including the SDK import.
 
-![][image5]Figure 4: Image of simple test using python to communicate with the Skunkworks camera using the SDK configured
+![][image5]
+Figure 4: Image of simple test using python to communicate with the Skunkworks camera using the SDK configured
 
 That is a meaningful integration step because it turns the camera into a programmable subsystem rather than a standalone device. Once Python can talk to the camera SDK, the camera becomes part of the payload’s software workflow and can be included in pipeline testing, file capture, and inference preparation. This also demonstrates a key integration principle: the camera interface is not just electrical, it is software-defined.
 
-![][image6]Figure 5: Process of setting up SDK on payload computer to communicate with Skunkworks camera
+![][image6]
+Figure 5: Process of setting up SDK on payload computer to communicate with Skunkworks camera
 
 The two camera paths together strengthen the report. The SpaceWire path shows that the architecture can support a space-grade interface. The Ethernet path shows that the software stack can also support a practical camera SDK and networking setup. That makes the final system more flexible and more representative of the mission uncertainty around final camera selection.
 
-![][image7]Figure 6: ifconfig of eth0 successfully configured to communicate with the Skunkworks camera in the same network of 10.42.0.0/24
+![][image7]
+Figure 6: ifconfig of eth0 successfully configured to communicate with the Skunkworks camera in the same network of 10.42.0.0/24
 
-![][image8]Figure 7: A test done using Python programming to retrieve information of the Skunkworks camera through Ethernet connection
+![][image8]
+Figure 7: A test done using Python programming to retrieve information of the Skunkworks camera through Ethernet connection
 
 ## **8\. Ku-band Radio Integration**
 
@@ -123,9 +124,10 @@ This matters because it means the integration work is still meaningful even with
 
 Ku-band integration matters architecturally because it validates the idea of a shared communication backbone. If the camera, AI module, and radio can all be coordinated through the same overall software structure, then the payload system is easier to maintain and easier to extend. That is particularly valuable for a satellite mission because it reduces the cost of future subsystem additions and avoids one-off integration logic.
 
-![][image9]Figure 8: SpaceWire loopback test for Ku-band path
+![][image9]
+Figure 8: SpaceWire loopback test for Ku-band path
 
-The SpaceWire loopback test is used to validate the communication path between the payload computer and external subsystems that rely on the SpaceWire protocol, specifically the Ku-band radio and the Siemera camera. Since both of these subsystems use SpaceWire as their primary interface, confirming correct operation at the protocol and driver level is essential before full hardware integration.
+The SpaceWire loopback test is used to validate the communication path between the payload computer and external subsystems that rely on the SpaceWire protocol, specifically the Ku-band radio and the Simera camera. Since both of these subsystems use SpaceWire as their primary interface, confirming correct operation at the protocol and driver level is essential before full hardware integration.
 
 The diagram illustrates the complete data flow across four main layers: user space, kernel space, programmable logic (FPGA), and the physical SpaceWire interface. At the user level, a Python application interacts with the SpaceWire driver through a wrapper (spw.py). This wrapper handles data transmission and reception in chunks, ensuring that data written to the interface is correctly returned and verified. The verification step is important, as it checks that transmitted data matches received data, confirming end-to-end integrity.
 
@@ -135,7 +137,7 @@ The programmable logic layer is responsible for high-speed data movement and pro
 
 At the hardware level, the SpaceWire PHY handles the physical signalling. In this test, a loopback configuration is used, where transmitted data is directly routed back to the receiver. This eliminates the need for external hardware while still validating the complete transmission path.
 
-The importance of this test lies in its ability to verify the full communication stack. Even though the Ku-band radio is not physically available, the successful loopback test demonstrates that the SpaceWire driver, DMA pipeline, and protocol implementation are functioning correctly. As a result, it provides strong confidence that both the Ku-band radio and the Siemera camera will operate correctly when connected, since they rely on the same validated SpaceWire interface.
+The importance of this test lies in its ability to verify the full communication stack. Even though the Ku-band radio is not physically available, the successful loopback test demonstrates that the SpaceWire driver, DMA pipeline, and protocol implementation are functioning correctly. As a result, it provides strong confidence that both the Ku-band radio and the Simera camera will operate correctly when connected, since they rely on the same validated SpaceWire interface.
 
 ## **9\. Software Environment and Board Bring-Up**
 
@@ -151,9 +153,11 @@ This environment change made the rest of the project much easier. Once Ubuntu wa
 
 ![][image11]
 
-![][image12]Figure 9:  Boot chain / Ubuntu filesystem
+![][image12]
+Figure 9: Boot chain / Ubuntu filesystem
 
-![][image13]Figure 10: Ubuntu successfully booted up in payload computer
+![][image13]
+Figure 10: Ubuntu successfully booted up in payload computer
 
 ## **10\. Hailo Integration and AI Enablement**
 
@@ -161,13 +165,15 @@ The Hailo work is one of the most important integration tasks in the project bec
 
 The eventual solution came from research into the correct software and platform versions. The project needed Ubuntu 22.04 specifically, and the ZES-recommended stack allowed PetaLinux 2024.2 together with HailoRT 4.23, which supports the Hailo model used in the project. Once that configuration was aligned properly, `lspci` could detect the Hailo 8L accelerator. That was a critical milestone because it proved that the hardware was not the problem; the issue had been software compatibility and environment selection.
 
-![][image14]Figure 11: Hailo successfully detected by the payload computer
+![][image14]
+Figure 11: Hailo successfully detected by the payload computer
 
 That discovery also explains why the Ubuntu filesystem became so useful. PetaLinux is lightweight, but it made the system harder to use for driver installation, internet access, package management, and debugging. Ubuntu, by contrast, made it easier to install and use the software needed for camera and Hailo integration. In a project like this, the practical ability to install and run libraries matters as much as the nominal weight of the operating system. The result is that the system became much more useful once Ubuntu was booted and the necessary libraries, drivers, and Python support were available.
 
 The Hailo accelerator is central to the performance story because CPU-only inference is too slow for the mission requirement. With Hailo active, the pipeline can run in roughly 4.3 to 4.5 seconds per image, which is far below the 20-second limit. That shows that hardware acceleration is not just a performance improvement; it is a mission requirement enabler.
 
-![][image15]Figure 12: example of a pipeline testing done 
+![][image15]
+Figure 12: example of a pipeline testing done 
 
 ## **11\. Ship Detection Pipeline and Proof-of-Function**
 
@@ -197,10 +203,9 @@ Because tiles overlap, the same ship can appear in more than one tile. The pipel
 The final outputs of the pipeline are the reconstructed detections, the translated labels, the cropped ship images, and the results CSV. These outputs demonstrate the full chain from raw image to final labelled result.
 
 ![][image16]
-
 Figure 13: Ship detection output
 
-![][image17]  
+![][image17]
 Figure 14: CSV output of detected ships
 
 ## **12\. Experimental Methodology and Timing Evaluation**
@@ -218,7 +223,6 @@ The Raspberry Pi 5 comparison must be interpreted carefully. The Hailo benchmark
 The purpose of these tests was to validate both functional correctness of subsystem integration and compliance with the mission timing constraint.
 
 ![][image18]
-
 Figure 15: ZES board component timing comparison showing tiling and inference time in single image processing and batch processing modes.
 
 ![][image19]  
@@ -232,7 +236,8 @@ The platform comparison must be presented carefully. If Raspberry Pi 5 appears f
 
 The correct decision criteria are therefore not only speed, but also mission compatibility, subsystem integration, and hardware relevance. In other words, Raspberry Pi 5 may be useful as a comparison platform, but ZES is the correct final integration target because it is the board that can support the full communication backbone, the camera path, the AI module, and the Ku-band integration together.
 
-![][image20]Figure 17: Comparison between ZES payload computer and the Raspberry Pi 5
+![][image20]
+Figure 17: Comparison between ZES payload computer and the Raspberry Pi 5
 
 ## **14\. Conclusion**
 
@@ -252,15 +257,37 @@ Future work may also include migrating from the Ubuntu-based development environ
 
 [1] ECSS, “SpaceWire – Links, nodes, routers and networks,” ECSS-E-ST-50-12C, 2008.
 
-[2] Xilinx, “Zynq UltraScale+ MPSoC Overview,” AMD Xilinx Documentation, 2023.
+[2] Simera Sense, “xScape SpaceWire Interface Control Document,” Document 050443, Rev. 3, 2024.
 
-[3] Hailo, “Hailo-8 AI Processor Datasheet,” Hailo Technologies, 2023.
+[3] Zero-Error Systems (ZES), “ZSOM-F01 User Manual,” Version 1.2, 2025.
 
-[4] Ultralytics, “YOLOv8 Documentation,” 2024. Available: https://docs.ultralytics.com
+[4] Zero-Error Systems (ZES), “ZSOM-F01 Start-Up Guide,” Version 1.0, 2025.
 
-[5] NASA, “Remote Sensing and Ground Sampling Distance (GSD),” NASA Earth Observatory.
+[5] Xilinx, “Zynq UltraScale+ MPSoC Overview,” AMD Xilinx Documentation, 2023.
 
-[6] Wertz, J. R., Everett, D. F., & Puschell, J. J., *Space Mission Engineering: The New SMAD*, Microcosm Press, 2011.
+[6] Hailo, “Hailo-8 AI Processor Datasheet,” Hailo Technologies, 2023.
+
+[7] Hailo, “Hailo AI Software Suite,” Hailo Technologies, 2024. Available: https://hailo.ai
+
+[8] Ultralytics, “YOLOv8 Documentation,” 2024. Available: https://docs.ultralytics.com
+
+[9] LUCID Vision Labs, “Arena Software Development Kit (SDK),” 2024. Available: https://thinklucid.com/downloads-hub/
+
+[10] LUCID Vision Labs, “Downloads Hub,” 2024. Available: https://thinklucid.com/downloads-hub/
+
+[11] OpenCores, “SpaceWire Light IP Core,” 2024. Available: https://opencores.org/projects/spacewire_light
+
+[12] Raspberry Pi Ltd., “Raspberry Pi 5 Product Brief,” 2023. Available: https://www.raspberrypi.com/products/raspberry-pi-5/
+
+[13] Raspberry Pi Ltd., “Raspberry Pi Documentation,” 2024. Available: https://www.raspberrypi.com/documentation/
+
+[14] NASA, “Remote Sensing and Ground Sampling Distance (GSD),” NASA Earth Observatory. Available: https://earthobservatory.nasa.gov
+
+[15] Wertz, J. R., Everett, D. F., & Puschell, J. J., *Space Mission Engineering: The New SMAD*, Microcosm Press, 2011.
+
+[16] Zero-Error Systems (ZES), “Zero-Error Systems Launches Industry’s First COTS FPGA-Based Radiation-Tolerant System-on-Module for Space Applications,” 2025. Available: https://zero-errorsystems.com/zero-error-systems-launches-industrys-first-cots-fpga-based-radiation-tolerant-system-on-module-for-space-applications/
+
+[17] NASA, “Raspberry Pi Single Board Computer Guideline,” NASA Electronic Parts and Packaging (NEPP), 2021. Available: https://nepp.nasa.gov/docs/papers/2021-Guertin-Raspberry-Pi-Guideline-CL-21-5641.pdf
 
 **Appendix**  
 **![][image21]**  
